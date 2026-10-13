@@ -34,3 +34,15 @@ class HashEmbeddingFunction:
 
         norm = math.sqrt(sum(v * v for v in vec)) or 1.0
         return [v / norm for v in vec]
+
+
+class FakeLLMClient:
+    """실제 API를 부르지 않는 가짜 LLM. 호출 기록을 남겨 테스트에서 검증할 수 있다."""
+
+    def __init__(self, response: str = "테스트용 고정 답변입니다.") -> None:
+        self.response = response
+        self.calls: list[tuple[str, str]] = []
+
+    def generate(self, system: str, user: str) -> str:
+        self.calls.append((system, user))
+        return self.response

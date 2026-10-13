@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
-from tests.fakes import HashEmbeddingFunction
+from tests.fakes import FakeLLMClient, HashEmbeddingFunction
 
 
 @pytest.fixture
@@ -27,6 +27,11 @@ def embedding_function() -> HashEmbeddingFunction:
 
 
 @pytest.fixture
-def client(settings, embedding_function) -> TestClient:
-    app = create_app(settings=settings, embedding_function=embedding_function)
+def llm_client() -> FakeLLMClient:
+    return FakeLLMClient()
+
+
+@pytest.fixture
+def client(settings, embedding_function, llm_client) -> TestClient:
+    app = create_app(settings=settings, embedding_function=embedding_function, llm_client=llm_client)
     return TestClient(app)

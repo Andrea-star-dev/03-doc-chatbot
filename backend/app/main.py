@@ -10,23 +10,37 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from pydantic import BaseModel
 
 from app import catalog
 from app.config import Settings, load_settings
+from app.llm import LLMClient, resolve_llm_client
 from app.pdf_processing import chunk_text, extract_pages
+from app.rag import answer_question
 from app.vectorstore import VectorStore
 
 
-def create_app(settings: Settings | None = None, embedding_function: Any | None = None) -> FastAPI:
+class QueryRequest(BaseModel):
+    question: str
+    n_results: int = 4
+
+
+def create_app(
+    settings: Settings | None = None,
+    embedding_function: Any | None = None,
+    llm_client: LLMClient | None = None,
+) -> FastAPI:
     settings = settings or load_settings()
     settings.uploads_dir.mkdir(parents=True, exist_ok=True)
     settings.chroma_dir.mkdir(parents=True, exist_ok=True)
 
     vector_store = VectorStore(settings.chroma_dir, embedding_function=embedding_function)
+    llm_client = llm_client or resolve_llm_client()
 
     app = FastAPI(title="사내 문서 검색 챗봇 API")
     app.state.settings = settings
     app.state.vector_store = vector_store
+    app.state.llm_client = llm_client
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -71,6 +85,27 @@ def create_app(settings: Settings | None = None, embedding_function: Any | None 
     @app.get("/documents")
     def list_documents() -> list[dict[str, Any]]:
         return catalog.list_entries(settings.catalog_path)
+
+    @app.post("/query")
+    def query(payload: QueryRequest) -> dict[str, Any]:
+        if not payload.question.strip():
+            raise HTTPException(status_code=400, detail="question이 비어있습니다.")
+
+        try:
+            result = answer_question(
+                vector_store, llm_client, payload.question, n_results=payload.n_results
+            )
+        except Exception as exc:  # noqa: BLE001 - LLM 호출 실패를 그대로 502로 전달
+            raise HTTPException(status_code=502, detail=f"답변 생성 실패: {exc}") from exc
+
+        return {
+            "answer": result.answer,
+            "used_context": result.used_context,
+            "sources": [
+                {"doc_id": s.doc_id, "filename": s.filename, "page": s.page}
+                for s in result.sources
+            ],
+        }
 
     return app
 
