@@ -1,0 +1,4 @@
+# 개발/테스트용. 실행에는 requirements.txt만 있으면 된다.
+pytest==9.1.1
+httpx==0.28.1
+reportlab==5.0.1
