@@ -1,15 +1,14 @@
-"""FastAPI 앱: PDF 업로드 → 텍스트 추출/청킹 → Chroma 저장.
-
-(질의응답 엔드포인트는 Day 2에서 추가된다.)
-"""
+"""FastAPI 앱: PDF 업로드 → 텍스트 추출/청킹 → Chroma 저장, 그리고 RAG 질의응답."""
 from __future__ import annotations
 
+import os
 import shutil
 import uuid
 from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app import catalog
@@ -38,6 +37,17 @@ def create_app(
     llm_client = llm_client or resolve_llm_client()
 
     app = FastAPI(title="사내 문서 검색 챗봇 API")
+
+    # 기본값 "*": 사내/로컬 데모 도구용. 외부에 공개 배포한다면
+    # DOC_CHATBOT_ALLOWED_ORIGINS에 프론트엔드 주소를 명시해서 좁혀야 한다.
+    allowed_origins = os.environ.get("DOC_CHATBOT_ALLOWED_ORIGINS", "*").split(",")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     app.state.settings = settings
     app.state.vector_store = vector_store
     app.state.llm_client = llm_client
