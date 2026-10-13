@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    container_name: doc-chatbot-backend
+    env_file:
+      - .env
+    environment:
+      - DOC_CHATBOT_ALLOWED_ORIGINS=http://localhost:5173
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: doc-chatbot-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend_data:
