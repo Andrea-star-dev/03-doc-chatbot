@@ -2,3 +2,7 @@
 pytest==9.1.1
 httpx==0.28.1
 reportlab==5.0.1
+
+# README 스크린샷 자동 캡처용 (scripts/capture_screenshots.py).
+# 설치 후 최초 1회: python -m playwright install chromium
+playwright==1.63.0

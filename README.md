@@ -22,10 +22,20 @@ PDF 문서를 올리면, 그 문서 내용을 근거로 질문에 답하는 챗�
 3. **근거 없으면 모른다고 답함** — 업로드된 문서에 관련 내용이 없으면
    추측하지 않고 "답변할 수 없습니다"라고 답합니다.
 
-> 결과 스크린샷 자리
->
-> - [ ] 문서 업로드 화면 (업로드된 문서 목록 포함)
-> - [ ] 채팅 화면 (질문 → 답변 + 출처 표시)
+### 화면
+
+**문서 업로드 화면** — 업로드된 문서 목록(파일명/페이지/청크/업로드 시각)
+
+![문서 업로드 화면](docs/screenshots/upload.png)
+
+**채팅 화면** — 질문에 대한 답변과 출처(문서명 + 페이지)
+
+![채팅 화면](docs/screenshots/chat.png)
+
+> 두 화면 모두 `LLM_PROVIDER=mock`(API 키 없이 동작하는 가짜 LLM)으로 생성한
+> 데모 화면입니다. 실제 기능(검색·출처 표시)은 그대로이고, 답변 문장만
+> Anthropic 대신 문서에서 바로 뽑은 문장입니다. `scripts/capture_screenshots.py`를
+> 실행하면 언제든 같은 화면을 다시 생성할 수 있습니다.
 
 ## 아키텍처
 
@@ -92,6 +102,10 @@ export ANTHROPIC_API_KEY=...   # 질문 기능을 쓰려면 필요 (업로드/�
 uvicorn app.main:app --reload
 ```
 
+API 키 없이 질문 기능까지 테스트해보고 싶다면 `ANTHROPIC_API_KEY` 대신
+`export LLM_PROVIDER=mock`으로 띄우면 됩니다. 실제 검색은 그대로 동작하고,
+답변만 문서에서 바로 뽑은 문장으로 대체됩니다.
+
 ### 프론트엔드
 
 ```bash
@@ -119,3 +133,16 @@ pytest
 ```
 
 프론트엔드는 `cd frontend && npm run build`로 타입 체크와 빌드를 확인할 수 있습니다.
+
+### README 스크린샷 다시 찍기
+
+```bash
+cd backend
+pip install -r requirements.txt -r requirements-dev.txt
+python -m playwright install chromium   # 최초 1회
+python scripts/capture_screenshots.py
+```
+
+백엔드/프론트엔드를 자동으로 띄우고(`LLM_PROVIDER=mock`), 샘플 PDF를 업로드해
+질문까지 해본 뒤 `docs/screenshots/upload.png`, `docs/screenshots/chat.png`를
+새로 생성합니다. 화면(App.tsx/App.css)을 바꿀 때마다 다시 실행하면 됩니다.
