@@ -59,13 +59,21 @@ export function ChatPanel() {
         )}
         {messages.map((msg) => (
           <div key={msg.id} className={`chat-bubble ${msg.role} ${msg.isError ? "error" : ""}`}>
+            {msg.role === "assistant" && !msg.isError && (
+              <div className="chat-evidence-label">근거 문서를 바탕으로 답변드립니다</div>
+            )}
             <div className="chat-text">{msg.text}</div>
             {msg.sources && msg.sources.length > 0 && (
               <div className="chat-sources">
-                출처:{" "}
-                {msg.sources
-                  .map((s) => `${s.filename} ${s.page}페이지`)
-                  .join(", ")}
+                <span className="chat-sources-label">출처</span>
+                {msg.sources.map((s, i) => (
+                  <span
+                    key={`${s.doc_id}-${s.page}-${i}`}
+                    className={`chat-source-tag ${i === 0 ? "primary" : ""}`}
+                  >
+                    {s.filename} · {s.page}페이지
+                  </span>
+                ))}
               </div>
             )}
           </div>

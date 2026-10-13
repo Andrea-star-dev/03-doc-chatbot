@@ -11,7 +11,15 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>사내 문서 검색 챗봇</h1>
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            <span className="brand-mark-dot" />
+          </span>
+          <div className="brand-text">
+            <h1>사내 문서 검색 챗봇</h1>
+            <p className="brand-eyebrow">Private Knowledge Assistant</p>
+          </div>
+        </div>
         <nav className="tabs">
           <button
             className={tab === "upload" ? "active" : ""}
