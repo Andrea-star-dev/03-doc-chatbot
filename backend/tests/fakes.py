@@ -10,7 +10,11 @@ import math
 
 
 class HashEmbeddingFunction:
-    def __init__(self, dim: int = 64) -> None:
+    # dim=64였을 때 CI에서 서로 다른 두 테스트 문장이 우연히 정확히 같은 코사인
+    # 유사도로 해시 충돌해서, 어느 쪽이 1등인지가 환경마다 달라지는 flaky 테스트가
+    # 났었다 (로컬은 우연히 통과, GitHub Actions에서는 실패). 차원을 키워 짧은
+    # 테스트 문장 몇 개 수준에서는 충돌이 사실상 나지 않게 한다.
+    def __init__(self, dim: int = 256) -> None:
         self._dim = dim
 
     def is_legacy(self) -> bool:
