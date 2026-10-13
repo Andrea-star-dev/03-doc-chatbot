@@ -1,6 +1,6 @@
 # 사내 문서 검색 챗봇 (RAG)
 
-[![CI](https://github.com/Junoh-Lee111/03-doc-chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Junoh-Lee111/03-doc-chatbot/actions/workflows/ci.yml)
+[![CI](https://github.com/Andrea-star-dev/03-doc-chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Andrea-star-dev/03-doc-chatbot/actions/workflows/ci.yml)
 
 PDF 문서를 올리면, 그 문서 내용을 근거로 질문에 답하는 챗봇입니다. 답변에는
 항상 "어느 문서 몇 페이지를 보고 답했는지"가 같이 표시되고, 문서에 없는
